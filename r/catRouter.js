@@ -1,24 +1,18 @@
 const express = require('express');
 const router = express.Router();
+const catController = require('../controllers/catController');
 
-router.get('/', (req, res) => {
-  console.log('get cat');
-  res.send('Hello Cat!');
-});
-
-router.post('/', (req, res) => {
+router.route('/').get(catController?.cat_list_get).post((req, res) => {
   console.log('post cat');
   res.send('post cat');
 });
 
-router.put('/', (req, res) => {
-  console.log('put cat');
-  res.send('put cat');
-});
-
-router.delete('/', (req, res) => {
-  console.log('delete cat');
-  res.send('delete cat');
+router.route('/:id').get(catController?.cat_get_by_id).put((req, res) => {
+  console.log('put cat', req.params);
+  res.send(`put cat with id ${req.params.id}`);
+}).delete((req, res) => {
+  console.log('delete cat', req.params);
+  res.send(`delete cat with id ${req.params.id}`);
 });
 
 module.exports = router;
