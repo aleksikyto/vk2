@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf8">
     <title>Example</title>
-    <link href="./css/style2.css" rel="stylesheet">
+    <link href="css/style2.css" rel="stylesheet">
 </head>
 <body>
 <div class="container">
@@ -15,7 +15,7 @@
     <div class="forms">
         <div class="form-wrapper">
             <h3>Add user</h3>
-            <form action="http://localhost:3000/user" method="post" class="light-border" id="addUserForm">
+            <form action="user" method="post" class="light-border"  id="addUserForm">
                 <input class="light-border" type="text" name="name" pattern=".{3,}" placeholder="Name" required>
                 <input class="light-border" type="email" name="email" placeholder="email" required>
                 <input class="light-border" type="password" name="passwd" pattern="(?=.*[A-Z]).{8,}" placeholder="Password" required>
@@ -56,7 +56,7 @@
         </div>
     </div>
 </div>
-<script src="./js/serialize.js"></script>
-<script src="./js/main2.js"></script>
+<script src="js/serialize.js"></script>
+<script src="js/main2.js"></script>
 </body>
 </html>

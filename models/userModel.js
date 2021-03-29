@@ -5,7 +5,6 @@ const promisePool = pool.promise();
 
 const getAllUsers = async () => {
   try {
-    // TODO: do the LEFT (or INNER) JOIN to get owner name too.
     const [rows] = await promisePool.query('SELECT * FROM wop_user');
     console.log('something back from db?', rows);
     return rows;
@@ -16,7 +15,6 @@ const getAllUsers = async () => {
 
 const getAllUsersSort = async (order) => {
   try {
-    // TODO: do the LEFT (or INNER) JOIN to get owner name too.
     const [rows] = await promisePool.query(`SELECT * FROM wop_user ORDER BY ${order}`);
     return rows;
   } catch (e) {

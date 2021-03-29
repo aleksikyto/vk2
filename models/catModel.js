@@ -5,7 +5,6 @@ const promisePool = pool.promise();
 
 const getAllCats = async () => {
   try {
-    // TODO: do the LEFT (or INNER) JOIN to get owner name too.
     const [rows] = await promisePool.query('SELECT * FROM wop_cat');
     console.log('something back from db?', rows);
     return rows;
@@ -16,8 +15,7 @@ const getAllCats = async () => {
 
 const getAllCatsSort = async (order) => {
   try {
-    // TODO: do the LEFT (or INNER) JOIN to get owner name too.
-    const [rows] = await promisePool.query(`SELECT * FROM wop_cat ORDER BY ${order}`);
+    const [rows] = await promisePool.query('SELECT * FROM wop_cat LEFT JOIN wop_user ON wop_cat.owner = wop_user.user_id ORDER BY ${order} ');
     return rows;
   } catch (e) {
     console.error('error', e.message);
@@ -31,7 +29,7 @@ const insertCat = async (cat) => {
 };
 
 const updateCat = async (cat) => {
-  const [row] = await promisePool.execute('UPDATE wop_cat SET name=?, age=?, weight=? WHERE cat_id=?', [cat.name, cat.age, cat.weight, cat.id]);
+  const [row] = await promisePool.execute('UPDATE wop_cat SET name=?, age=?, weight=?, owner=?, WHERE cat_id=?', [cat.name, cat.age, cat.weight, cat.owner, cat.id]);
   console.log('update row', row);
   return true;
 };

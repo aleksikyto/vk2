@@ -2,7 +2,7 @@
 
 const userModel = require('../models/userModel');
 
-const users = userModel.users;
+const users = userModel.getAllUsers();
 
 const user_list_get = async (req, res) => {
   console.log('get all users from controllers', req.query);
@@ -28,7 +28,6 @@ const user_get_by_id = (req, res) => {
 const user_post_new_user = async (req, res) => {
   console.log('post user', req.body, req.file);
   const user = req.body;
-  user.filename = req.file.filename;
   const userid = await userModel.insertUser(user);
   user.id = userid;
   //res.send(`post cat: ${req.body.name}`);
