@@ -1,49 +1,54 @@
 'use strict';
-
 const pool = require('../database/db');
 const promisePool = pool.promise();
 
 const getAllUsers = async () => {
   try {
     const [rows] = await promisePool.query('SELECT * FROM wop_user');
-    console.log('something back from db?', rows);
     return rows;
   } catch (e) {
-    console.error('error', e.message);
+    console.error('userModel:', e.message);
   }
 };
 
-const getAllUsersSort = async (order) => {
+const getUser = async (id) => {
   try {
-    const [rows] = await promisePool.query(`SELECT * FROM wop_user ORDER BY ${order}`);
-    return rows;
+    console.log('userModel getUser', id);
+    const [rows] = await promisePool.query('SELECT * FROM wop_user WHERE user_id = ?', [id]);
+    return rows[0];
   } catch (e) {
-    console.error('error', e.message);
+    console.error('userModel:', e.message);
   }
 };
 
-const insertUser = async (user) => {
-  const [row] = await promisePool.execute('INSERT INTO wop_user (name, email, password) VALUES (?, ?, ?)', [user.name, user.email, user.password]);
-  console.log('insert row', row);
-  return row.insertId;
+const insertUser = async (req) => {
+  try {
+    const [rows] = await promisePool.query('INSERT INTO wop_user (name, email, passwd) VALUES (?, ?, ?);',
+        [req.body.name, req.body.email, req.body.passwd]);
+    console.log('userModel insert:', rows);
+    return rows.insertId;
+  } catch (e) {
+    console.error('userModel insertUser:', e);
+    return 0;
+  }
 };
 
-const updateUser = async (user) => {
-  const [row] = await promisePool.execute('UPDATE wop_user SET name=?, email=?, password=? WHERE user_id=?', [user.name, user.email, user.password]);
-  console.log('update row', row);
-  return true;
+const updateUser = async (id, req) => {
+  try {
+    const [rows] = await promisePool.query('UPDATE wop_user SET name = ?, email = ?, passwd = ? WHERE user_id = ?;',
+        [req.body.name, req.body.username, req.body.passwd, id]);
+    console.log('userModel update:', rows);
+    return rows.affectedRows === 1;
+  } catch (e) {
+    return false;
+  }
 };
 
-const deleteUser = async (id) => {
-  const [row] = await promisePool.execute('DELETE FROM wop_user WHERE user_id=?', [id]);
-  console.log('delete row', row);
-  return true;
-};
+//TODO: delete function. Consider no return needed? just best effort...
 
 module.exports = {
   getAllUsers,
-  getAllUsersSort,
+  getUser,
   insertUser,
-  updateUser,
-  deleteUser,
+  updateUser
 };
