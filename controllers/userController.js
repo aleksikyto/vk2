@@ -1,6 +1,7 @@
 'use strict';
 // userController
 const userModel = require('../models/userModel');
+const {validationResult} = require('express-validator');
 
 const users = userModel.users;
 
@@ -16,6 +17,11 @@ const user_get_by_id = async (req, res) => {
 }
 
 const user_create = async (req, res) => {
+  // Finds the validation errors in this request and wraps them in an object with handy functions
+  const errors = validationResult(req);
+  if(!errors.isEmpty()){
+    return res.status(400).json({errors: errors.array()});
+  }
   //here we will create a user with data comming from req...
   console.log('userController user_create', req.body, req.file);
   const id = await userModel.insertUser(req);
