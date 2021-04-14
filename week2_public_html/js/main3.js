@@ -2,8 +2,11 @@
 const url = 'http://localhost:3000'; // change url when uploading to server
 
 // select existing html elements
-const addForm = document.querySelector('#addCatForm');
-const modForm = document.querySelector('#modCatForm');
+const loginWrapper = document.querySelector('#login-wrapper');
+const logOut = document.querySelector('#log-out');
+const loginForm = document.querySelector('#login-form');
+const addForm = document.querySelector('#add-cat-form');
+const modForm = document.querySelector('#mod-cat-form');
 const ul = document.querySelector('ul');
 const userLists = document.querySelectorAll('.add-owner');
 
@@ -50,15 +53,17 @@ const createCatCards = (cats) => {
     delButton.addEventListener('click', async () => {
       const fetchOptions = {
         method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + sessionStorage.getItem('token'),
+        },
       };
       try {
         const response = await fetch(url + '/cat/' + cat.cat_id, fetchOptions);
         const json = await response.json();
         console.log('delete response', json);
         getCat();
-      }
-      catch (e) {
-        console.log(e.message);
+      } catch (e) {
+        console.log(e.message());
       }
     });
 
@@ -77,17 +82,22 @@ const createCatCards = (cats) => {
 };
 
 // AJAX call
+
 const getCat = async () => {
+  console.log('getCat token ', sessionStorage.getItem('token'));
   try {
-    const response = await fetch(url + '/cat');
+    const options = {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token'),
+      },
+    };
+    const response = await fetch(url + '/cat', options);
     const cats = await response.json();
     createCatCards(cats);
-  }
-  catch (e) {
+  } catch (e) {
     console.log(e.message);
   }
 };
-getCat();
 
 // create user options to <select>
 const createUserOptions = (users) => {
@@ -108,15 +118,18 @@ const createUserOptions = (users) => {
 // get users to form options
 const getUsers = async () => {
   try {
-    const response = await fetch(url + '/user');
+    const options = {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token'),
+      },
+    };
+    const response = await fetch(url + '/user', options);
     const users = await response.json();
     createUserOptions(users);
-  }
-  catch (e) {
+  } catch (e) {
     console.log(e.message);
   }
 };
-getUsers();
 
 // submit add cat form
 addForm.addEventListener('submit', async (evt) => {
@@ -124,6 +137,9 @@ addForm.addEventListener('submit', async (evt) => {
   const fd = new FormData(addForm);
   const fetchOptions = {
     method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + sessionStorage.getItem('token'),
+    },
     body: fd,
   };
   const response = await fetch(url + '/cat', fetchOptions);
@@ -137,17 +153,12 @@ modForm.addEventListener('submit', async (evt) => {
   evt.preventDefault();
   const data = serializeJson(modForm);
   const fetchOptions = {
-    method: 'PUT', // *GET, POST, PUT, DELETE, etc.
-    mode: 'cors', // no-cors, *cors, same-origin
-    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-    credentials: 'same-origin', // include, *same-origin, omit
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      // 'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Bearer ' + sessionStorage.getItem('token'),
     },
-    redirect: 'follow', // manual, *follow, error
-    referrer: 'no-referrer', // no-referrer, *client
-    body: JSON.stringify(data), // body data type must match "Content-Type" header
+    body: JSON.stringify(data),
   };
 
   console.log(fetchOptions);
@@ -156,3 +167,37 @@ modForm.addEventListener('submit', async (evt) => {
   console.log('modify response', json);
   getCat();
 });
+
+// login
+loginForm.addEventListener('submit', async (evt) => {
+  evt.preventDefault();
+  const data = serializeJson(loginForm);
+  const fetchOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  };
+
+  const response = await fetch(url + '/auth/login', fetchOptions);
+  const json = await response.json();
+  console.log('login response', json);
+  if (!json.user) {
+    alert(json.message);
+  } else {
+    sessionStorage.setItem('token', json.token);
+    loginWrapper.style.display = 'none';
+    logOut.style.display = 'block';
+    getCat();
+    getUsers();
+  }
+});
+
+// check if token exists and hide login form, show logout button, get cats and users
+if (sessionStorage.getItem('token')) {
+  loginWrapper.style.display = 'none';
+  logOut.style.display = 'block';
+  getCat();
+  getUsers();
+}
