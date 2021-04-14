@@ -2,6 +2,7 @@
 // catController
 const catModel = require('../models/catModel');
 const {validationResult} = require('express-validator');
+const {makeThumbnail} = require('../utils/resize');
 
 const cats = catModel.cats;
 
@@ -22,6 +23,7 @@ const cat_create = async (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({errors: errors.array()});
   }
+
   //here we will create a cat with data comming from req...
   console.log('catController cat_create', req.body, req.file);
   const id = await catModel.insertCat(req);
@@ -44,10 +46,20 @@ const cat_delete = async (req, res) => {
   res.json(deleteOk);
 };
 
+const make_thumbnail = async (req, res, next) => {
+  try{
+    const thumbnail = await makeThumbnail(req.file.path, req.file.filename);
+    if(thumbnail) next();
+  }catch (e) {
+    res.status(400).json({error: e.message})
+  }
+
+}
 module.exports = {
   cat_list_get,
   cat_get_by_id,
   cat_create,
   cat_update,
   cat_delete,
+  make_thumbnail,
 };
